@@ -1310,17 +1310,21 @@ async def cancel_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
 def main():
     application = Application.builder().token(BOT_TOKEN).build()
 
-    # Job queue للمهام المجدولة
+
+# Job queue للمهام المجدولة (إذا كان متاحاً)
     job_queue = application.job_queue
-    
-    # التذكيرات الأساسية (كل 5 دقائق)
-    job_queue.run_repeating(send_reminders, interval=300, first=10)
-    
-    # تنبيهات الطقس (كل 6 ساعات)
-    job_queue.run_repeating(send_weather_alerts, interval=21600, first=60)
-    
-    # تحديث قائمة الانتظار (كل 30 دقيقة)
-    job_queue.run_repeating(notify_waiting_list_updates, interval=1800, first=120)
+    if job_queue:
+        # التذكيرات الأساسية (كل 5 دقائق)
+        job_queue.run_repeating(send_reminders, interval=300, first=10)
+        
+        # تنبيهات الطقس (كل 6 ساعات)
+        job_queue.run_repeating(send_weather_alerts, interval=21600, first=60)
+        
+        # تحديث قائمة الانتظار (كل 30 دقيقة)
+        job_queue.run_repeating(notify_waiting_list_updates, interval=1800, first=120)
+    else:
+        print("⚠️ JobQueue not available - scheduled tasks disabled")
+
 
     # ConversationHandler للحجز الأساسي
     booking_conv = ConversationHandler(
