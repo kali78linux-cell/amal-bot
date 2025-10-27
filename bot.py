@@ -1379,9 +1379,24 @@ def main():
     # Generic CallbackQuery router for buttons
     application.add_handler(CallbackQueryHandler(button_handler))
 
-    # Start polling
-    logger.info("Starting enhanced bot with all features...")
-    application.run_polling()
+    # تحديد وضع التشغيل بناءً على البيئة
+    PORT = int(os.getenv('PORT', 8000))
+    RENDER_EXTERNAL_URL = os.getenv('RENDER_EXTERNAL_URL')
+    
+    if RENDER_EXTERNAL_URL:
+        # وضع Webhook على Render
+        logger.info("Starting bot in WEBHOOK mode on Render")
+        application.run_webhook(
+            listen="0.0.0.0",
+            port=PORT,
+            url_path=BOT_TOKEN,
+            webhook_url=f"{RENDER_EXTERNAL_URL}/{BOT_TOKEN}",
+            drop_pending_updates=True
+        )
+    else:
+        # وضع Polling للتطوير المحلي
+        logger.info("Starting bot in POLLING mode locally")
+        application.run_polling()
 
 if __name__ == "__main__":
     main()
